@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<title><%= title%></title>
+	<link rel="stylesheet" type="text/css" href="./bower_components/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="./stylesheets/style.css">
+	<script type="text/javascript" src="./bower_components/react/react.js"></script>
+	<script type="text/javascript" src="./bower_components/react/react-dom.js"></script>
+	<script type="text/javascript" src="./bower_components/react/browser.min.js"></script>
+</head>
+<body>
+	<div class="container" id="container"></div>
+</body>
+<script type="text/babel">
+ /*父组件*/
+ var TodoList = React.createClass({
+		getInitialState: function () {
+		        return {
+		            todolist: ['打麻将','看电影','打篮球','健身']
+		         };
+		},
+		handleChange: function(res){
+				this.setState({
+					todolist: res
+				});
+		},
+    render: function () {
+        return (
+        	<div className="bg-default jumbotron">
+        		<NewList todo={this.state.todolist} onAdd={this.handleChange}/>
+        	  <ShowList todo={this.state.todolist} onDel={this.handleChange}/>
+        	  <ContronlList todo={this.state.todolist} onClear={this.handleChange}/>
+        	</div>
+        );
+    }
+ });
+ /*添加组件*/
+ var NewList = React.createClass({
+ 		handleAdd: function(e){
+				e.preventDefault();
+				var inputObj = this.refs.myTodoInput;
+				var inputValue = inputObj.value;
+				var res = this.props.todo;
+				if(inputValue !== ''){
+					res.push(inputValue);
+					this.props.onAdd(res);
+				}
+				inputObj.value = '';
+ 		},
+ 		render: function(){
+				return (
+				<div>
+				<form onSubmit={this.handleAdd}>
+				<input type="text" name="mess" className="form-control" placeholder="您要做什么?" ref="myTodoInput"/>
+				</form>
+				</div>
+				);
+ 		}
+ });
+ /*显示组件*/
+ var ShowList = React.createClass({
+ 		handleRemove: function(e){
+				e.preventDefault();
+				var removeBtn = e.target;
+				var resId = removeBtn.getAttribute('data-id');
+				var res = this.props.todo;
+				res.splice(resId,1);
+				this.props.onDel(res);
+ 		},
+ 		render: function (){
+					return (
+					<ul id="todoList" className="list-group">
+					{this.props.todo.map(function(e,i){
+					return (
+					<li className="list-group-item clearfix">
+						<span>{e}</span>
+						<a className="btn btn-primary btn-sm pull-right" data-id={i} onClick={this.handleRemove}>删除</a>
+					</li>
+					)}.bind(this))}
+					</ul>
+					);
+ 		}
+ });
+ /*控制面板*/
+ var ContronlList = React.createClass({
+		handleClear: function(e){
+				var res = this.props.todo;
+				res = [];
+				this.props.onClear(res);
+		},
+		render: function (){
+						return (
+						<ul className="nav nav-pills clearfix">
+						<li role="presentation">
+							<a className="heading">items<span className="badge">{this.props.todo.length}
+							</span></a>
+						</li>
+						<li role="presentation" className="pull-right">
+							<a href="javascript:void(0)"  className="btn btn-info btn-sm" onClick={this.handleClear}>clear
+							</a>
+						</li>
+						</ul>
+						)
+		}
+ });
+ ReactDOM.render(<TodoList/>, document.getElementById('container'));
+</script>
+</html>
